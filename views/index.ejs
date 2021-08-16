@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>BMI</h1>
+    <% value.map( (value , index) =>{ %>
+        <!-- <h4><%= value.Gender %></h4> -->
+        <h4 style="display:inline-block">Table:- <%= index+1 %>)</h4>
+        <h4 style="display:inline-block">Table:- <%= value.BMI_Value %>)</h4>
+        <h4 style="display:inline-block">BMI_Category:- <%= value.BMI_Category %></h4>
+        <h4 style="display:inline-block">Health_Risk:- <%= value.Health_Risk %></h4>
+        <h4></h4>
+    <% }) %>
+    <h4> the value of Overweight are <%= Count %></h4>
+</body>
+</html>
