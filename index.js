@@ -21,7 +21,7 @@ app.use(express.json())
 
 app.get("/", async (req,res)=>{
     var value = [];
-    var count= 0;
+    var countCategory= 0 , countHealth_Risk = 0;
     var {page , size } = req.query;
     if(!page){
         page = 1;
@@ -33,7 +33,8 @@ app.get("/", async (req,res)=>{
     await BMI_Model.find().limit(size).skip(skip).then(val =>{
         if(val){
             val.map((data)=>{
-                if(data.BMI_Category === "Overweight") count++ ;
+                if(data.BMI_Category === "Overweight") countCategory++ ;
+                if(data.Health_Risk === "Enhanced risk") countHealth_Risk++ ;
                 value.push({
                     Gender:data.Gender,
                     BMI_Value:data.BMI_Value,
@@ -43,7 +44,7 @@ app.get("/", async (req,res)=>{
                     WeightKg:data.WeightKg
                 })
             })
-            res.render("index",{'value':value , 'Count':count})
+            res.render("index",{'value':value , 'countCategory':countCategory , 'countHealth_Risk':countHealth_Risk})
         }else{
             return res.json({"DATA":"WRONG"})
         }
