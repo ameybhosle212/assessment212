@@ -3,8 +3,18 @@ const BMI_Model = require('./models/model_bmi')
 const app = express()
 const mongoose = require("mongoose") 
 const { Find_BMI_AND_CALCULATE } = require('./helper/inde')
+const csrf = require('csurf')
+var bodyParser = require('body-parser')
+var sessionExpress = require('express-session')
+const cookieParser = require('cookie-parser')
 require('dotenv').config()
-
+// const redis = require('redis')
+// const clientRedis = redis.createClient({
+//     host:'127.0.0.1',    
+//     port:6379
+// });
+const io = require('socket.io')
+const helmet = require('helmet')
 // DB
 
 mongoose.connect(process.env.MONGO_URL, {useNewUrlParser: true, useUnifiedTopology: true}).then(()=>{
@@ -12,10 +22,25 @@ mongoose.connect(process.env.MONGO_URL, {useNewUrlParser: true, useUnifiedTopolo
 })
 
 // MiddleWares
-
+// app.use(csrf())
+// var csrfProtection = csrf({ cookie: true })
+// app.use(function (req, res, next) {
+//     res.cookie('XSRF-TOKEN', req.csrfToken());
+//     res.locals.csrftoken = req.csrfToken();
+//     next();
+//   });
+// var parseForm = bodyParser.urlencoded({ extended: false })
+app.use(cookieParser())
+app.use(helmet())
 app.set("view engine","ejs")
+app.use(sessionExpress({
+    secret:'secret',
+    resave:false,
+    saveUninitialized:false
+}))
 app.use(express.urlencoded({extended:true}))
 app.use(express.json())
+
 
 // Routes
 
@@ -32,6 +57,9 @@ app.get("/", async (req,res)=>{
     const skip = (page - 1) * size;
     await BMI_Model.find().limit(size).skip(skip).then(val =>{
         if(val){
+            // if(val.length !== JSON.parse(clientRedis.get("data")).length){
+            //     clientRedis.set("data",JSON.stringify(val));   
+            // }
             val.map((data)=>{
                 if(data.BMI_Category === "Overweight") countCategory++ ;
                 if(data.Health_Risk === "Enhanced risk") countHealth_Risk++ ;
@@ -52,11 +80,11 @@ app.get("/", async (req,res)=>{
     
 })
 
-app.get("/add",(req,res)=>{
-    res.render("add")
+app.get("/add" , (req,res)=>{
+    res.render("add",{ 'csrfToken': req.csrfToken() })
 })
 
-app.post("/add",(req,res)=>{
+app.post("/add" , (req,res)=>{
     const { Gender , HeightCm , WeightKg } = req.body;
     try {
         const newBMI = new BMI_Model({

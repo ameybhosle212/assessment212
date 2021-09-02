@@ -8,6 +8,7 @@
 </head>
 <body>
     <form method="POST" action="/add">
+        <input type="hidden" name="_csrf" value=<%= csrfToken %>>
         <label>Gender:
             <input type="text" name="Gender" >
         </label>
